@@ -1,5 +1,6 @@
 //  ========================================================================
-//  COSC363: Computer Graphics (2022);  University of Canterbury.
+//  COSC422: Assignment 1
+//	Name: Gongzai Li
 //  FILE NAME: TerrainPatches.cpp
 //
 //	The program generates and loads the mesh data for a terrain floor (100 verts, 81 elems).
@@ -21,19 +22,26 @@ using namespace std;
 GLuint vaoID;
 GLuint theProgram;
 GLuint mvpMatrixLoc, eyeLoc;
-float  eye_x = 0, eye_y = 20, eye_z = 30;      //Initial camera position
-float look_x = 0, look_y = 0, look_z = -40;    //"Look-at" point along -z direction
 float toRad = 3.14159265/180.0;     //Conversion from degrees to rad
 
 float verts[100*3];       //10x10 grid (100 vertices)
 GLushort elems[81*4];     //Element array for 9x9 = 81 quad patches
 
 
-//start - file path
+//----------start - file path----------
 string heightMapsPath = "src\\height_maps\\";
 string texturesPath = "src\\textures\\";
 string shadersPath = "src\\shaders\\";
-//end - file path
+//----------end - file path----------
+
+//----------start - any postion value----------
+float eye_x = 0, eye_y = 20, eye_z = 30;      //Initial camera position/Eye postion
+float look_x = 0, look_y = 0, look_z = -60;    //"Look-at" point along -z direction
+float angle = 0;	//Rotation angle which is degree
+float rotation_angle = 0.1; //Rotation speed
+float move_speed = 1; // move speed
+//----------end - any postion value----------
+
 
 glm::mat4 projView;
 
@@ -183,14 +191,23 @@ void initialise()
 //Display function to compute uniform values based on transformation parameters and to draw the scene
 void display()
 {
-	glm::vec4 cameraPosn = glm::vec4(eye_x, eye_y, eye_z, 1.0);
-	glUniform4fv(eyeLoc, 1, &cameraPosn[0]);
+
 
 	//--------Compute matrices----------------------
 	glm::mat4 proj = glm::perspective(30.0f * toRad, 1.25f, 20.0f, 500.0f);  //perspective projection matrix
 	glm::mat4 view = lookAt(glm::vec3(eye_x, eye_y, eye_z), glm::vec3(look_x, look_y, look_z), glm::vec3(0.0, 1.0, 0.0)); //view matri
 	projView = proj * view;  //Product matrix
+
+	//----------Uniform to shaders----------
 	glUniformMatrix4fv(mvpMatrixLoc, 1, GL_FALSE, &projView[0][0]);
+
+	glm::vec3 cameraPosn = glm::vec3(eye_x, eye_y, eye_z);
+	glUniform3fv(eyeLoc, 1, &cameraPosn[0]); // glm::value_ptr
+
+
+
+
+
 
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	glBindVertexArray(vaoID);
@@ -199,6 +216,45 @@ void display()
 	glFlush();
 }
 
+
+//To contorl camera position
+void special(int key, int x, int y)
+{
+	switch (key)
+	{
+	case GLUT_KEY_UP:
+		eye_x += sin(angle) * move_speed;
+		eye_z -= cos(angle) * move_speed;
+		break;
+	case GLUT_KEY_DOWN:
+		eye_x -= sin(angle) * move_speed;
+		eye_z += cos(angle) * move_speed;
+		break;
+	case GLUT_KEY_LEFT:
+		angle -= rotation_angle;
+		break;
+	case GLUT_KEY_RIGHT:
+		angle += rotation_angle;
+		break;
+	default:
+		break;
+	}
+	// update the look pos
+	look_x = eye_x + 90 * sin(angle);
+	look_z = eye_z - 90 * cos(angle);
+
+
+	cout << "eye_x " << eye_x << endl;
+	cout << "eye_y " << eye_x << endl;
+	cout << "eye_z " << eye_z << endl;
+	//cout << "angle" << angle << endl;
+	//cout << "look_x" << look_x << endl;
+	//cout << "look_z" << look_z << endl;
+
+
+	glutPostRedisplay();
+
+}
 
 int main(int argc, char** argv)
 {
@@ -221,7 +277,8 @@ int main(int argc, char** argv)
 	}
 
 	initialise();
-	glutDisplayFunc(display); 
+	glutDisplayFunc(display);
+	glutSpecialFunc(special);
 	glutMainLoop();
 	return 0;
 }

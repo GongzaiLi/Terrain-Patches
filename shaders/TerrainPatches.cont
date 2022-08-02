@@ -1,19 +1,39 @@
 #version 400
 
-layout(vertices = 4) out;
+layout(vertices = 4) out; // a patch has 4 verticies
 
+// program Uniforms
+uniform vec3 eyeLoc;
+
+vec3 getPatchAvgPos()
+{
+    vec3 patch_avg_pos = (gl_in[0].gl_Position.xyz + 
+                            gl_in[1].gl_Position.xyz + 
+                            gl_in[2].gl_Position.xyz + 
+                            gl_in[3].gl_Position.xyz) / 4;
+    return patch_avg_pos;
+}
+
+// todo done??
 void main()
 {
     gl_out[gl_InvocationID].gl_Position
       = gl_in[gl_InvocationID].gl_Position;
 
-    int outLevel = 30;
-    int inLevel = 30;
+    // todo question????????????????? max level and min level
+    float min_Level = 6.0, max_level = 30.0;
+    vec3 min_loc = vec3(150.0, 20.0, 120.0), max_loc = vec3(-150.0, 0.0, -120.0);
+    
+    // todo question????????????????? how to move from patch point and camera's distance
+    float dist = distance(eyeLoc, getPatchAvgPos());
 
-    gl_TessLevelOuter[0] = outLevel;
-    gl_TessLevelOuter[1] = outLevel;
-    gl_TessLevelOuter[2] = outLevel;
-    gl_TessLevelOuter[3] = outLevel;
-    gl_TessLevelInner[0] = inLevel;
-    gl_TessLevelInner[1] = inLevel;
+    int level = int((dist - min_loc) / (max_loc - min_loc) * (min_Level - max_level) + max_level);
+
+    //level = 6;
+    gl_TessLevelOuter[0] = level;
+    gl_TessLevelOuter[1] = level;
+    gl_TessLevelOuter[2] = level;
+    gl_TessLevelOuter[3] = level;
+    gl_TessLevelInner[0] = level;
+    gl_TessLevelInner[1] = level;
 }
