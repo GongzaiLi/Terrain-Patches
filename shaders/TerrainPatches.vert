@@ -3,7 +3,7 @@
 layout (location = 0) in vec4 position;
 
 // program Uniforms
-uniform mat4 mvpMatrix;
+// uniform mat4 mvpMatrix;
 
 void main()
 {

@@ -3,7 +3,7 @@
 layout(vertices = 4) out; // a patch has 4 verticies
 
 // program Uniforms
-uniform vec3 eyeLoc;
+uniform vec3 eyePos;
 
 vec3 getPatchAvgPos()
 {
@@ -24,11 +24,11 @@ void main()
     float low_Level = 30.0, high_level = 100.0;
     vec3 min_loc = vec3(150.0, 20.0, 120.0), max_loc = vec3(-150.0, 0.0, -120.0);
     
-    float dist = distance(eyeLoc, getPatchAvgPos());
+    float dist = distance(eyePos, getPatchAvgPos());
 
     int level = int((dist - min_loc) / (max_loc - min_loc) * (low_Level - high_level) + high_level);
 
-    //level = 6;
+    // level = 6;
     gl_TessLevelOuter[0] = level;
     gl_TessLevelOuter[1] = level;
     gl_TessLevelOuter[2] = level;

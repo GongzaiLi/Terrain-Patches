@@ -25,22 +25,22 @@ using namespace std;
 
 //---end - Defines Value-------
 
-
-
 GLuint vaoID;
-GLuint theProgram;
-GLuint mvpMatrixLoc, eyeLoc;
+
+GLuint mvMatrixLoc, mvpMatrixLoc, norMatrixLoc, lgtLoc; //Initial model-view & model-view-projection & normal & light
+GLuint eyeLoc;
 float toRad = 3.14159265/180.0;     //Conversion from degrees to rad
 
 float verts[100*3];       //10x10 grid (100 vertices)
 GLushort elems[81*4];     //Element array for 9x9 = 81 quad patches
-
 GLuint texID[TEXTURES_NUM]; // init textures number
 
+
+
 //----------start - file path----------
-string heightMapsPath = "src\\height_maps\\";
-string texturesPath = "src\\textures\\";
-string shadersPath = "src\\shaders\\";
+string heightMapsPath = "./src/height_maps/";
+string texturesPath = "./src/textures/";
+string shadersPath = "./src/shaders/";
 //----------end - file path----------
 
 //----------start - any postion value----------
@@ -55,7 +55,12 @@ float move_speed = 1; // move speed
 const char* terrain_maps[] = {"", "MtCook.tga", "MtRuapehu.tga"}; // Initial hight map
 int terain_model_id = 1; // Initial hight map id default MtCook.tga
 
+GLuint waterHeightLoc;
+GLuint snowHeightLoc;
+float water_level = 2.0; // Todo update later
+float snow_level = 5.0; // Todo update later
 //----------end - textures and hight map----------
+
 
 
 
@@ -134,8 +139,6 @@ void loadTexture()
 
 }
 
-
-
 //Loads a shader file and returns the reference to a shader object
 GLuint loadShader(GLenum shaderType, string filename)
 {
@@ -168,19 +171,22 @@ GLuint loadShader(GLenum shaderType, string filename)
 //Initialise the shader program, create and load buffer data
 void initialise()
 {
-//--------Load terrain height map-----------
+	//--------Load terrain height map-----------
 	loadTexture();
-//--------Load shaders----------------------
+
+	//--------Load shaders----------------------
 	GLuint shaderv = loadShader(GL_VERTEX_SHADER, shadersPath + "TerrainPatches.vert");
 	GLuint shaderf = loadShader(GL_FRAGMENT_SHADER, shadersPath + "TerrainPatches.frag");
 	GLuint shaderc = loadShader(GL_TESS_CONTROL_SHADER, shadersPath + "TerrainPatches.cont");
 	GLuint shadere = loadShader(GL_TESS_EVALUATION_SHADER, shadersPath + "TerrainPatches.eval");
+	GLuint shaderg = loadShader(GL_GEOMETRY_SHADER, shadersPath + "TerrainPatches.geom");
 
 	GLuint program = glCreateProgram();
 	glAttachShader(program, shaderv);
 	glAttachShader(program, shaderf);
 	glAttachShader(program, shaderc);
 	glAttachShader(program, shadere);
+	glAttachShader(program, shaderg);
 
 	glLinkProgram(program);
 
@@ -197,13 +203,37 @@ void initialise()
 	}
 	glUseProgram(program);
 
-	mvpMatrixLoc = glGetUniformLocation(program, "mvpMatrix");
+	//----------uniform location varible setter---------------
 	eyeLoc = glGetUniformLocation(program, "eyePos");
+	mvpMatrixLoc = glGetUniformLocation(program, "mvpMatrix");
+	mvMatrixLoc = glGetUniformLocation(program, "mvMatrix");
+	norMatrixLoc = glGetUniformLocation(program, "norMatrix");
+	lgtLoc = glGetUniformLocation(program, "lgtPos");
 
-	GLuint texLoc = glGetUniformLocation(program, "heightMap");
-	glUniform1i(texLoc, 0);
 
-//---------Load buffer data-----------------------
+
+	//----------uniform texture varible setter---------------
+	GLuint heightMapLoc = glGetUniformLocation(program, "heightMap");
+	glUniform1i(heightMapLoc, 0); //Assign a value 0 to the variable texLoc to specify that it should use the texture from unit 0.
+
+	// texture setter
+	GLuint waterLoc = glGetUniformLocation(program, "waterSimple");
+	glUniform1i(waterLoc, 1);
+
+	GLuint grassLoc = glGetUniformLocation(program, "grassSimple");
+	glUniform1i(grassLoc, 2);
+
+	GLuint snowLoc = glGetUniformLocation(program, "snowSimple");
+	glUniform1i(snowLoc, 3);
+
+	waterHeightLoc = glGetUniformLocation(program, "waterHeight");
+	glUniform1f(waterHeightLoc, water_level);
+
+	snowHeightLoc = glGetUniformLocation(program, "snowHeight");
+	glUniform1f(snowHeightLoc, snow_level);
+
+
+	//---------Load buffer data-----------------------
 	generateData();
 
 	GLuint vboID[2];
@@ -240,9 +270,23 @@ void display()
 	glm::mat4 view = lookAt(glm::vec3(eye_x, eye_y, eye_z), glm::vec3(look_x, look_y, look_z), glm::vec3(0.0, 1.0, 0.0)); //view matri
 	projView = proj * view;  //Product matrix
 
-	//----------Uniform to shaders----------
-	glUniformMatrix4fv(mvpMatrixLoc, 1, GL_FALSE, &projView[0][0]);
+	glm::vec4 light_pos = glm::vec4(-50.0, 10.0, 60.0, 1.0); // todo need to update West 
+	
 
+	//----------light Uniform setter----------
+	glm::mat4 mvMatrix = view;
+	glm::mat4 mvpMatrix = projView;
+	glm::mat4 invMatrix = glm::inverse(view);
+	glm::vec4 lightEye = view * light_pos;     //Light position in eye coordinates
+
+	glUniformMatrix4fv(mvpMatrixLoc, 1, GL_FALSE, &mvpMatrix[0][0]);
+	glUniformMatrix4fv(norMatrixLoc, 1, GL_TRUE, &invMatrix[0][0]);
+	glUniformMatrix4fv(mvMatrixLoc, 1, GL_FALSE, &mvMatrix[0][0]);
+
+	glUniform4fv(lgtLoc, 1, &lightEye[0]);
+	
+	
+	//---------camera Uniform stter------------------------------
 	glm::vec3 cameraPosn = glm::vec3(eye_x, eye_y, eye_z);
 	glUniform3fv(eyeLoc, 1, &cameraPosn[0]); // glm::value_ptr
 
@@ -250,7 +294,7 @@ void display()
 
 
 
-
+	// settings
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	glBindVertexArray(vaoID);
 	//glDrawElements(GL_QUADS, 81 * 4, GL_UNSIGNED_SHORT, NULL);
@@ -293,6 +337,8 @@ void special(int key, int x, int y)
 	//cout << "look_x" << look_x << endl;
 	//cout << "look_z" << look_z << endl;
 
+	glm::vec3 cameraPosn = glm::vec3(eye_x, eye_y, eye_z);
+	glUniform3fv(eyeLoc, 1, &cameraPosn[0]); // glm::value_ptr
 
 	glutPostRedisplay();
 
