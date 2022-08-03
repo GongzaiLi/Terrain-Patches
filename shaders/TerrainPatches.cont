@@ -20,14 +20,13 @@ void main()
     gl_out[gl_InvocationID].gl_Position
       = gl_in[gl_InvocationID].gl_Position;
 
-    // todo question????????????????? max level and min level
-    float min_Level = 6.0, max_level = 30.0;
+
+    float low_Level = 30.0, high_level = 100.0;
     vec3 min_loc = vec3(150.0, 20.0, 120.0), max_loc = vec3(-150.0, 0.0, -120.0);
     
-    // todo question????????????????? how to move from patch point and camera's distance
     float dist = distance(eyeLoc, getPatchAvgPos());
 
-    int level = int((dist - min_loc) / (max_loc - min_loc) * (min_Level - max_level) + max_level);
+    int level = int((dist - min_loc) / (max_loc - min_loc) * (low_Level - high_level) + high_level);
 
     //level = 6;
     gl_TessLevelOuter[0] = level;

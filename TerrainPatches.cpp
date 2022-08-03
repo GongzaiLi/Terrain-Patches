@@ -19,6 +19,14 @@
 #include "loadTGA.h" 
 using namespace std;
 
+
+//---start - Defines Value-----
+#define TEXTURES_NUM 4
+
+//---end - Defines Value-------
+
+
+
 GLuint vaoID;
 GLuint theProgram;
 GLuint mvpMatrixLoc, eyeLoc;
@@ -27,6 +35,7 @@ float toRad = 3.14159265/180.0;     //Conversion from degrees to rad
 float verts[100*3];       //10x10 grid (100 vertices)
 GLushort elems[81*4];     //Element array for 9x9 = 81 quad patches
 
+GLuint texID[TEXTURES_NUM]; // init textures number
 
 //----------start - file path----------
 string heightMapsPath = "src\\height_maps\\";
@@ -41,6 +50,13 @@ float angle = 0;	//Rotation angle which is degree
 float rotation_angle = 0.1; //Rotation speed
 float move_speed = 1; // move speed
 //----------end - any postion value----------
+
+//----------start - textures and hight map----------
+const char* terrain_maps[] = {"", "MtCook.tga", "MtRuapehu.tga"}; // Initial hight map
+int terain_model_id = 1; // Initial hight map id default MtCook.tga
+
+//----------end - textures and hight map----------
+
 
 
 glm::mat4 projView;
@@ -78,21 +94,47 @@ void generateData()
 	}
 }
 
+// Load high map
+void loadHighMap()
+{
+
+	glBindTexture(GL_TEXTURE_2D, texID[0]); // hight map
+	loadTGA(heightMapsPath + terrain_maps[terain_model_id]);
+
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+}
+
+// Load texture
+void loadSurfacesTexture(string texture_name, int texture_id)
+{
+	glBindTexture(GL_TEXTURE_2D, texID[texture_id]); // hight map
+	loadTGA(texturesPath + texture_name);
+
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+}
+
 //Loads height map
 void loadTexture()
 {
-	GLuint texID;
-    glGenTextures(1, &texID);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texID);
-	loadTGA(heightMapsPath + "Terrain_hm_01.tga");
+	
 
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glGenTextures(TEXTURES_NUM, texID);
+    glActiveTexture(GL_TEXTURE0);
+
+	loadHighMap();
+	loadSurfacesTexture("Water.tga", 1);
+	loadSurfacesTexture("Grass.tga", 2);
+	loadSurfacesTexture("Snow.tga", 3);
 
 }
+
+
 
 //Loads a shader file and returns the reference to a shader object
 GLuint loadShader(GLenum shaderType, string filename)
@@ -244,9 +286,9 @@ void special(int key, int x, int y)
 	look_z = eye_z - 90 * cos(angle);
 
 
-	cout << "eye_x " << eye_x << endl;
-	cout << "eye_y " << eye_x << endl;
-	cout << "eye_z " << eye_z << endl;
+	//cout << "eye_x " << eye_x << endl;
+	//cout << "eye_y " << eye_x << endl;
+	//cout << "eye_z " << eye_z << endl;
 	//cout << "angle" << angle << endl;
 	//cout << "look_x" << look_x << endl;
 	//cout << "look_z" << look_z << endl;
@@ -254,6 +296,32 @@ void special(int key, int x, int y)
 
 	glutPostRedisplay();
 
+}
+
+// switch hight map
+void switchHightMap(int id)
+{
+	if (terain_model_id == id) return;
+	terain_model_id = id;
+	// cout << "runner id " << terain_model_id << endl;
+	loadHighMap();
+	display();
+}
+
+// ASCII user interaction event
+void keyboardEvent(unsigned char key, int x, int y)
+{
+	switch (key)
+	{
+	case '1':
+		switchHightMap(1);
+		break;
+	case '2':
+		switchHightMap(2);
+		break;
+	default:
+		break;
+	}
 }
 
 int main(int argc, char** argv)
@@ -279,6 +347,7 @@ int main(int argc, char** argv)
 	initialise();
 	glutDisplayFunc(display);
 	glutSpecialFunc(special);
+	glutKeyboardFunc(keyboardEvent);
 	glutMainLoop();
 	return 0;
 }
