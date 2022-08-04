@@ -8,6 +8,8 @@ uniform sampler2D snowSimple;
 
 uniform float waterHeight;
 uniform float snowHeight;
+uniform bool showFog;
+uniform float fogDensity;
 
 
 in vec4 eyeNormal;
@@ -128,28 +130,65 @@ vec4 waterWithGrassTexture()
 }
 */
 
+float setRGB(float code)
+{
+    return 255.0/code;
+}
+
+vec4 setFog(vec4 color)
+{
+    float low_fog = 50.0, high_fog = -150; // todo later
+
+    //vec4 fog_color = vec4(setRGB(242.0), setRGB(248.0), setRGB(247.0), 1);
+    vec4 fog_color = vec4(setRGB(220.0), setRGB(219.0), setRGB(223.0), 1);
+
+    float z = currentPatchPoint.z;
+
+    
+    float t = (z - low_fog) / (high_fog - low_fog);
+    if (t <= 0) {
+        t = 0;
+    }
+    if (t >= 1) {
+        t = 1;
+    }
+    t *= fogDensity;
+    color = (1 - t) * color + t * fog_color;
+    
+
+    return color;
+
+    
+}
+
 void main() 
 {
      // float waterWithGrassLevel = 1.0;
      float grassWithSnowLevel = 1.0;
-     
+
      float point_level = currentPatchPoint.y;
+
+     vec4 color;
      
 
      if (point_level >= snowHeight) {
-        outputColor = snowTexture();
+        color = snowTexture();
 
      } else if (point_level > waterHeight) { // waterWithGrassLevel
         
         if (point_level >= snowHeight - grassWithSnowLevel) {
-            outputColor = grassWithSnowTexture();
+            color = grassWithSnowTexture();
         } else {
-            outputColor = grassTexture();
+            color = grassTexture();
         }
 
      } else {
-        outputColor = waterTexture();
+        color = waterTexture();
      }
+
+     if (showFog) color = setFog(color);
+
+     outputColor = color;
 
      //gl_FragColor = vec4(0, 0, 1, 1);
      

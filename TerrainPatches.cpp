@@ -37,6 +37,7 @@ GLuint texID[TEXTURES_NUM]; // init textures number
 
 
 
+
 //----------start - file path----------
 string heightMapsPath = "./src/height_maps/";
 string texturesPath = "./src/textures/";
@@ -65,11 +66,18 @@ GLuint waterHeightLoc;
 GLuint snowHeightLoc;
 float water_level = 2.0; // Todo update later
 float snow_level = 5.0; // Todo update later
-float update_level_speed = 0.1;
+float update_level_speed = 0.01;
 //----------end - textures and hight map----------
 
+//----------start - some suppot variable--------
+bool is_line_wireframe = false;
+bool is_show_fog = false;
+float fog_density = 0.5;
+bool more_fog = true;
+float update_fog_speed = 0.01;
 
-
+GLuint showFogLoc;
+GLuint fogDensityLoc;
 
 glm::mat4 projView;
 
@@ -226,6 +234,8 @@ void initialise()
 	mvMatrixLoc = glGetUniformLocation(program, "mvMatrix");
 	norMatrixLoc = glGetUniformLocation(program, "norMatrix");
 	lgtLoc = glGetUniformLocation(program, "lgtPos");
+	showFogLoc = glGetUniformLocation(program, "showFog");
+	fogDensityLoc = glGetUniformLocation(program, "fogDensity");
 
 
 
@@ -271,8 +281,7 @@ void initialise()
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-	//glShadeModel(GL_SMOOTH); // todo 
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);//------------------------------------------------
+	glShadeModel(GL_SMOOTH); // todo 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 }
@@ -311,8 +320,13 @@ void display()
 	//--------------water & snow level---------------------
 	glUniform1f(waterHeightLoc, water_level);
 	glUniform1f(snowHeightLoc, snow_level);
+	
+	glUniform1i(showFogLoc, is_show_fog);
 
+	glUniform1f(fogDensityLoc, fog_density);
 
+	//--------------Fog-----------------------------------
+	
 
 	// settings
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
@@ -368,8 +382,8 @@ void special(int key, int x, int y)
 	//cout << "look_x" << look_x << endl;
 	//cout << "look_z" << look_z << endl;
 
-	glm::vec3 cameraPosn = glm::vec3(eye_x, eye_y, eye_z);
-	glUniform3fv(eyeLoc, 1, &cameraPosn[0]); // glm::value_ptr
+	//glm::vec3 cameraPosn = glm::vec3(eye_x, eye_y, eye_z);
+	//glUniform3fv(eyeLoc, 1, &cameraPosn[0]); // glm::value_ptr
 
 	glutPostRedisplay();
 
@@ -425,6 +439,17 @@ void downSonwLevel(float step)
 	}
 }
 
+void switchWireframe()
+{
+	if (is_line_wireframe) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+	else {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+	is_line_wireframe = !is_line_wireframe;
+}
+
 // ASCII user interaction event
 void keyboardEvent(unsigned char key, int x, int y)
 {
@@ -448,9 +473,37 @@ void keyboardEvent(unsigned char key, int x, int y)
 	case 's':
 		downSonwLevel(update_level_speed);
 		break;
+	case ' ':
+		switchWireframe();
+		break;
+	case 'f':
+		is_show_fog = !is_show_fog;
+		break;
 	default:
 		break;
 	}
+	glutPostRedisplay();
+}
+
+void fogDensityChange(int value)
+{
+	if (is_show_fog) {
+		if (more_fog) {
+			fog_density += update_fog_speed;
+		}
+		else {
+			fog_density -= update_fog_speed;
+		}
+
+		if (fog_density <= 0.0) {
+			more_fog = true;
+		}
+
+		if (fog_density >= 1.0) {
+			more_fog = false;
+		}
+	}
+	glutTimerFunc(100, fogDensityChange, 0);
 	glutPostRedisplay();
 }
 
@@ -478,6 +531,7 @@ int main(int argc, char** argv)
 	glutDisplayFunc(display);
 	glutSpecialFunc(special);
 	glutKeyboardFunc(keyboardEvent);
+	glutTimerFunc(100, fogDensityChange, 0);
 	glutMainLoop();
 	return 0;
 }
