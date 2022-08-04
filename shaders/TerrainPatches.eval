@@ -4,6 +4,7 @@ layout(quads, equal_spacing, ccw) in;
 
 // program Uniforms
 uniform sampler2D heightMap;
+uniform mat4 mvpMatrix;
 
 // todo need updated
 void main()
@@ -14,7 +15,7 @@ void main()
 
     float u = gl_TessCoord.x;
     float v = gl_TessCoord.y;
-
+    
     posn = (1-u) * (1-v) * gl_in[0].gl_Position +
         u * (1-v) * gl_in[1].gl_Position +
         u * v * gl_in[2].gl_Position +
@@ -27,7 +28,7 @@ void main()
     float height = texture(heightMap, tcoord).r;
 
     posn.y = height * 10.0;
-
+    
     //gl_Position = mvpMatrix * posn;
     gl_Position = posn;
 }

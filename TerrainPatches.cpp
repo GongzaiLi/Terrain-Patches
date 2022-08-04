@@ -16,7 +16,7 @@
 #include <GL/freeglut.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "loadTGA.h" 
+#include "loadTGA.h"
 using namespace std;
 
 
@@ -41,6 +41,8 @@ GLuint texID[TEXTURES_NUM]; // init textures number
 string heightMapsPath = "./src/height_maps/";
 string texturesPath = "./src/textures/";
 string shadersPath = "./src/shaders/";
+
+string testPath = "./src/test/";
 //----------end - file path----------
 
 //----------start - any postion value----------
@@ -49,6 +51,10 @@ float look_x = 0, look_y = 0, look_z = -60;    //"Look-at" point along -z direct
 float angle = 0;	//Rotation angle which is degree
 float rotation_angle = 0.1; //Rotation speed
 float move_speed = 1; // move speed
+
+// eye max and min
+float eye_x_max = 180.0, eye_x_min = -180.0; 
+float eye_z_max = 135.0, eye_z_min = -225.0;
 //----------end - any postion value----------
 
 //----------start - textures and hight map----------
@@ -59,6 +65,7 @@ GLuint waterHeightLoc;
 GLuint snowHeightLoc;
 float water_level = 2.0; // Todo update later
 float snow_level = 5.0; // Todo update later
+float update_level_speed = 0.1;
 //----------end - textures and hight map----------
 
 
@@ -99,43 +106,53 @@ void generateData()
 	}
 }
 
-// Load high map
-void loadHighMap()
-{
 
-	glBindTexture(GL_TEXTURE_2D, texID[0]); // hight map
-	loadTGA(heightMapsPath + terrain_maps[terain_model_id]);
-
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-}
-
-// Load texture
-void loadSurfacesTexture(string texture_name, int texture_id)
-{
-	glBindTexture(GL_TEXTURE_2D, texID[texture_id]); // hight map
-	loadTGA(texturesPath + texture_name);
-
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-}
 
 //Loads height map
 void loadTexture()
 {
 	
-
     glGenTextures(TEXTURES_NUM, texID);
-    glActiveTexture(GL_TEXTURE0);
+    
+	
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texID[0]); // hight map
+	loadTGA(heightMapsPath + terrain_maps[terain_model_id]);
 
-	loadHighMap();
-	loadSurfacesTexture("Water.tga", 1);
-	loadSurfacesTexture("Grass.tga", 2);
-	loadSurfacesTexture("Snow.tga", 3);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, texID[1]); // hight map
+	loadTGA(texturesPath + "Water.tga");
+
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, texID[2]); // hight map
+	loadTGA(texturesPath + "Grass.tga");
+
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, texID[3]); // hight map
+	loadTGA(texturesPath + "Snow.tga");
+
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
 
 }
 
@@ -176,10 +193,10 @@ void initialise()
 
 	//--------Load shaders----------------------
 	GLuint shaderv = loadShader(GL_VERTEX_SHADER, shadersPath + "TerrainPatches.vert");
-	GLuint shaderf = loadShader(GL_FRAGMENT_SHADER, shadersPath + "TerrainPatches.frag");
 	GLuint shaderc = loadShader(GL_TESS_CONTROL_SHADER, shadersPath + "TerrainPatches.cont");
 	GLuint shadere = loadShader(GL_TESS_EVALUATION_SHADER, shadersPath + "TerrainPatches.eval");
 	GLuint shaderg = loadShader(GL_GEOMETRY_SHADER, shadersPath + "TerrainPatches.geom");
+	GLuint shaderf = loadShader(GL_FRAGMENT_SHADER, shadersPath + "TerrainPatches.frag"); // testPath    shadersPath
 
 	GLuint program = glCreateProgram();
 	glAttachShader(program, shaderv);
@@ -227,10 +244,8 @@ void initialise()
 	glUniform1i(snowLoc, 3);
 
 	waterHeightLoc = glGetUniformLocation(program, "waterHeight");
-	glUniform1f(waterHeightLoc, water_level);
-
 	snowHeightLoc = glGetUniformLocation(program, "snowHeight");
-	glUniform1f(snowHeightLoc, snow_level);
+
 
 
 	//---------Load buffer data-----------------------
@@ -256,7 +271,9 @@ void initialise()
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glShadeModel(GL_SMOOTH); // todo 
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);//------------------------------------------------
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
@@ -283,6 +300,7 @@ void display()
 	glUniformMatrix4fv(norMatrixLoc, 1, GL_TRUE, &invMatrix[0][0]);
 	glUniformMatrix4fv(mvMatrixLoc, 1, GL_FALSE, &mvMatrix[0][0]);
 
+
 	glUniform4fv(lgtLoc, 1, &lightEye[0]);
 	
 	
@@ -290,7 +308,9 @@ void display()
 	glm::vec3 cameraPosn = glm::vec3(eye_x, eye_y, eye_z);
 	glUniform3fv(eyeLoc, 1, &cameraPosn[0]); // glm::value_ptr
 
-
+	//--------------water & snow level---------------------
+	glUniform1f(waterHeightLoc, water_level);
+	glUniform1f(snowHeightLoc, snow_level);
 
 
 
@@ -302,10 +322,19 @@ void display()
 	glFlush();
 }
 
+void checkScreenBoundary()
+{
+	if (eye_x >= eye_x_max) eye_x = eye_x_max;
+	if (eye_x <= eye_x_min) eye_x = eye_x_min;
+	if (eye_z >= eye_z_max) eye_z = eye_z_max;
+	if (eye_z <= eye_z_min) eye_z = eye_z_min;
+}
+
 
 //To contorl camera position
 void special(int key, int x, int y)
 {
+
 	switch (key)
 	{
 	case GLUT_KEY_UP:
@@ -326,13 +355,15 @@ void special(int key, int x, int y)
 		break;
 	}
 	// update the look pos
+
+	checkScreenBoundary();
 	look_x = eye_x + 90 * sin(angle);
 	look_z = eye_z - 90 * cos(angle);
 
 
-	//cout << "eye_x " << eye_x << endl;
-	//cout << "eye_y " << eye_x << endl;
-	//cout << "eye_z " << eye_z << endl;
+	cout << "eye_x " << eye_x << endl;
+	cout << "eye_y " << eye_x << endl;
+	cout << "eye_z " << eye_z << endl;
 	//cout << "angle" << angle << endl;
 	//cout << "look_x" << look_x << endl;
 	//cout << "look_z" << look_z << endl;
@@ -350,8 +381,48 @@ void switchHightMap(int id)
 	if (terain_model_id == id) return;
 	terain_model_id = id;
 	// cout << "runner id " << terain_model_id << endl;
-	loadHighMap();
-	display();
+	loadTexture();
+}
+
+void upWaterLevel(float step)
+{
+	if (water_level >= snow_level) {
+		water_level = snow_level;
+	}
+	else {
+		water_level += step;
+	}
+}
+
+void downWaterLevel(float step)
+{
+	if (water_level <= 0.1) {
+		water_level = 0.1;
+	}
+	else {
+		water_level -= step;
+	}
+}
+
+
+void upSonwLevel(float step)
+{
+	if (snow_level >= 10) {
+		snow_level = 10;
+	}
+	else {
+		snow_level += step;
+	}
+}
+
+void downSonwLevel(float step)
+{
+	if (snow_level <= water_level) {
+		snow_level = water_level;
+	}
+	else {
+		snow_level -= step;
+	}
 }
 
 // ASCII user interaction event
@@ -365,9 +436,22 @@ void keyboardEvent(unsigned char key, int x, int y)
 	case '2':
 		switchHightMap(2);
 		break;
+	case 'q':
+		upWaterLevel(update_level_speed);
+		break;
+	case 'a':
+		downWaterLevel(update_level_speed);
+		break;
+	case 'w':
+		upSonwLevel(update_level_speed);
+		break;
+	case 's':
+		downSonwLevel(update_level_speed);
+		break;
 	default:
 		break;
 	}
+	glutPostRedisplay();
 }
 
 int main(int argc, char** argv)
