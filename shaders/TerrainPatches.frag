@@ -190,6 +190,6 @@ void main()
 
      outputColor = color;
 
-     //gl_FragColor = vec4(0, 0, 1, 1);
+     //outputColor = vec4(0, 0, 1, 1);
      
 }

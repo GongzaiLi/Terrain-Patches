@@ -47,7 +47,7 @@ string testPath = "./src/test/";
 //----------end - file path----------
 
 //----------start - any postion value----------
-float eye_x = 0, eye_y = 20, eye_z = 30;      //Initial camera position/Eye postion
+float eye_x = 0, eye_y = 40, eye_z = 30;      //Initial camera position/Eye postion
 float look_x = 0, look_y = 0, look_z = -60;    //"Look-at" point along -z direction
 float angle = 0;	//Rotation angle which is degree
 float rotation_angle = 0.1; //Rotation speed
@@ -60,7 +60,7 @@ float eye_z_max = 135.0, eye_z_min = -225.0;
 
 //----------start - textures and hight map----------
 const char* terrain_maps[] = {"", "MtCook.tga", "MtRuapehu.tga"}; // Initial hight map
-int terain_model_id = 1; // Initial hight map id default MtCook.tga
+int terain_model_id = 2; // Initial hight map id default MtCook.tga
 
 GLuint waterHeightLoc;
 GLuint snowHeightLoc;
@@ -114,6 +114,16 @@ void generateData()
 	}
 }
 
+void loadHeightMap() {
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texID[0]); // hight map
+	loadTGA(heightMapsPath + terrain_maps[terain_model_id]);
+
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+}
 
 
 //Loads height map
@@ -123,14 +133,7 @@ void loadTexture()
     glGenTextures(TEXTURES_NUM, texID);
     
 	
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texID[0]); // hight map
-	loadTGA(heightMapsPath + terrain_maps[terain_model_id]);
-
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	loadHeightMap();
 
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, texID[1]); // hight map
@@ -376,7 +379,7 @@ void special(int key, int x, int y)
 
 
 	cout << "eye_x " << eye_x << endl;
-	cout << "eye_y " << eye_x << endl;
+	cout << "eye_y " << eye_y << endl;
 	cout << "eye_z " << eye_z << endl;
 	//cout << "angle" << angle << endl;
 	//cout << "look_x" << look_x << endl;
@@ -395,7 +398,8 @@ void switchHightMap(int id)
 	if (terain_model_id == id) return;
 	terain_model_id = id;
 	// cout << "runner id " << terain_model_id << endl;
-	loadTexture();
+	loadHeightMap();
+
 }
 
 void upWaterLevel(float step)
