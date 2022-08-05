@@ -67,6 +67,11 @@ GLuint snowHeightLoc;
 float water_level = 2.0; // Todo update later
 float snow_level = 5.0; // Todo update later
 float update_level_speed = 0.01;
+
+//int water_wave_tick = 0;
+//GLuint waterWaveTickLoc;
+//float water_wave_forward = 1;
+//GLuint waterWaveForwardLoc;
 //----------end - textures and hight map----------
 
 //----------start - some suppot variable--------
@@ -81,6 +86,7 @@ GLuint fogDensityLoc;
 
 bool remove_cracking = true;
 GLuint removeCrackingLoc;
+
 
 glm::mat4 projView;
 
@@ -243,6 +249,8 @@ void initialise()
 	showFogLoc = glGetUniformLocation(program, "showFog");
 	fogDensityLoc = glGetUniformLocation(program, "fogDensity");
 	removeCrackingLoc = glGetUniformLocation(program, "removeCracking");
+	//waterWaveTickLoc = glGetUniformLocation(program, "waterWaveTick");
+	//waterWaveForwardLoc = glGetUniformLocation(program, "waterWaveForward");
 
 
 
@@ -288,7 +296,7 @@ void initialise()
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-	glShadeModel(GL_SMOOTH); // todo 
+	glShadeModel(GL_SMOOTH); // make more smoth
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 }
@@ -332,6 +340,9 @@ void display()
 	glUniform1i(removeCrackingLoc, remove_cracking);
 
 	glUniform1f(fogDensityLoc, fog_density);
+
+	//glUniform1i(waterWaveTickLoc, water_wave_tick);
+	//glUniform1f(waterWaveForwardLoc, water_wave_forward);
 
 	//--------------Fog-----------------------------------
 	
@@ -383,9 +394,9 @@ void special(int key, int x, int y)
 	look_z = eye_z - 90 * cos(angle);
 
 
-	cout << "eye_x " << eye_x << endl;
-	cout << "eye_y " << eye_y << endl;
-	cout << "eye_z " << eye_z << endl;
+	//cout << "eye_x " << eye_x << endl;
+	//cout << "eye_y " << eye_y << endl;
+	//cout << "eye_z " << eye_z << endl;
 	//cout << "angle" << angle << endl;
 	//cout << "look_x" << look_x << endl;
 	//cout << "look_z" << look_z << endl;
@@ -498,6 +509,7 @@ void keyboardEvent(unsigned char key, int x, int y)
 	glutPostRedisplay();
 }
 
+
 void fogDensityChange(int value)
 {
 	if (is_show_fog) {
@@ -519,6 +531,18 @@ void fogDensityChange(int value)
 	glutTimerFunc(100, fogDensityChange, 0);
 	glutPostRedisplay();
 }
+
+/*
+void waterWaveChange(int value)
+{
+	water_wave_tick++;
+	water_wave_forward = !water_wave_forward;
+
+	glutTimerFunc(50, waterWaveChange, 0);
+	glutPostRedisplay();
+}
+*/
+
 
 int main(int argc, char** argv)
 {
@@ -545,6 +569,7 @@ int main(int argc, char** argv)
 	glutSpecialFunc(special);
 	glutKeyboardFunc(keyboardEvent);
 	glutTimerFunc(100, fogDensityChange, 0);
+	//glutTimerFunc(50, waterWaveChange, 0);
 	glutMainLoop();
 	return 0;
 }

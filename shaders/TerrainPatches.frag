@@ -11,7 +11,6 @@ uniform float snowHeight;
 uniform bool showFog;
 uniform float fogDensity;
 
-
 in vec4 eyeNormal;
 in vec4 lgtVector;
 in vec4 halfWayVector;
