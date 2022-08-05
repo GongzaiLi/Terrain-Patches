@@ -79,6 +79,9 @@ float update_fog_speed = 0.01;
 GLuint showFogLoc;
 GLuint fogDensityLoc;
 
+bool remove_cracking = true;
+GLuint removeCrackingLoc;
+
 glm::mat4 projView;
 
 //Generate vertex and element data for the terrain floor
@@ -239,6 +242,7 @@ void initialise()
 	lgtLoc = glGetUniformLocation(program, "lgtPos");
 	showFogLoc = glGetUniformLocation(program, "showFog");
 	fogDensityLoc = glGetUniformLocation(program, "fogDensity");
+	removeCrackingLoc = glGetUniformLocation(program, "removeCracking");
 
 
 
@@ -325,6 +329,7 @@ void display()
 	glUniform1f(snowHeightLoc, snow_level);
 	
 	glUniform1i(showFogLoc, is_show_fog);
+	glUniform1i(removeCrackingLoc, remove_cracking);
 
 	glUniform1f(fogDensityLoc, fog_density);
 
@@ -482,6 +487,9 @@ void keyboardEvent(unsigned char key, int x, int y)
 		break;
 	case 'f':
 		is_show_fog = !is_show_fog;
+		break;
+	case 'c':
+		remove_cracking = !remove_cracking;
 		break;
 	default:
 		break;
