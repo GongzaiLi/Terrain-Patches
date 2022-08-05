@@ -404,8 +404,8 @@ void switchHightMap(int id)
 
 void upWaterLevel(float step)
 {
-	if (water_level >= snow_level) {
-		water_level = snow_level;
+	if (water_level >= snow_level-0.01) {
+		return;
 	}
 	else {
 		water_level += step;
@@ -435,8 +435,8 @@ void upSonwLevel(float step)
 
 void downSonwLevel(float step)
 {
-	if (snow_level <= water_level) {
-		snow_level = water_level;
+	if (snow_level <= water_level + 0.01) {
+		return;
 	}
 	else {
 		snow_level -= step;
@@ -486,6 +486,7 @@ void keyboardEvent(unsigned char key, int x, int y)
 	default:
 		break;
 	}
+
 	glutPostRedisplay();
 }
 

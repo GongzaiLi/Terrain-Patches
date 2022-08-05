@@ -171,7 +171,7 @@ void main()
      vec4 color;
      
 
-     if (point_level >= snowHeight) {
+     if (point_level > snowHeight) {
         color = snowTexture();
 
      } else if (point_level > waterHeight) { // waterWithGrassLevel
