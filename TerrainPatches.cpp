@@ -43,7 +43,6 @@ string heightMapsPath = "./src/height_maps/";
 string texturesPath = "./src/textures/";
 string shadersPath = "./src/shaders/";
 
-string testPath = "./src/test/";
 //----------end - file path----------
 
 //----------start - any postion value----------
@@ -68,10 +67,10 @@ float water_level = 2.0;
 float snow_level = 5.0;
 float update_level_speed = 0.01;
 
-//int water_wave_tick = 0;
-//GLuint waterWaveTickLoc;
-//float water_wave_forward = 1;
-//GLuint waterWaveForwardLoc;
+int water_wave_tick = 0;
+GLuint waterWaveTickLoc;
+float water_wave_forward = 1;
+GLuint waterWaveForwardLoc;
 //----------end - textures and hight map----------
 
 //----------start - some suppot variable--------
@@ -242,8 +241,8 @@ void initialise()
 	showFogLoc = glGetUniformLocation(program, "showFog");
 	fogDensityLoc = glGetUniformLocation(program, "fogDensity");
 	removeCrackingLoc = glGetUniformLocation(program, "removeCracking");
-	//waterWaveTickLoc = glGetUniformLocation(program, "waterWaveTick");
-	//waterWaveForwardLoc = glGetUniformLocation(program, "waterWaveForward");
+	waterWaveTickLoc = glGetUniformLocation(program, "waterWaveTick");
+	waterWaveForwardLoc = glGetUniformLocation(program, "waterWaveForward");
 
 
 
@@ -334,8 +333,8 @@ void display()
 
 	glUniform1f(fogDensityLoc, fog_density);
 
-	//glUniform1i(waterWaveTickLoc, water_wave_tick);
-	//glUniform1f(waterWaveForwardLoc, water_wave_forward);
+	glUniform1i(waterWaveTickLoc, water_wave_tick);
+	glUniform1f(waterWaveForwardLoc, water_wave_forward);
 
 	//--------------Fog-----------------------------------
 	
@@ -525,7 +524,7 @@ void fogDensityChange(int value)
 	glutPostRedisplay();
 }
 
-/*
+
 void waterWaveChange(int value)
 {
 	water_wave_tick++;
@@ -534,7 +533,7 @@ void waterWaveChange(int value)
 	glutTimerFunc(50, waterWaveChange, 0);
 	glutPostRedisplay();
 }
-*/
+
 
 
 int main(int argc, char** argv)
@@ -562,7 +561,7 @@ int main(int argc, char** argv)
 	glutSpecialFunc(special);
 	glutKeyboardFunc(keyboardEvent);
 	glutTimerFunc(100, fogDensityChange, 0);
-	//glutTimerFunc(50, waterWaveChange, 0);
+	glutTimerFunc(50, waterWaveChange, 0);
 	glutMainLoop();
 	return 0;
 }

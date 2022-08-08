@@ -6,8 +6,8 @@ layout(quads, equal_spacing, ccw) in;
 uniform sampler2D heightMap;
 uniform mat4 mvpMatrix;
 uniform float waterHeight;
-//uniform int waterWaveTick;
-//uniform float waterWaveForward;
+uniform int waterWaveTick; // todo water wave
+uniform float waterWaveForward; // todo water wave
 
 void main()
 {
@@ -33,7 +33,7 @@ void main()
     
     if (posn.y <= waterHeight) {
         
-        /* try to do water wave
+        //try to do water wave
         float m = 0.2;  // height of the wave about the baseline
         float degree = 1; // defat 180
         float water_frequency = degree * 3.14159265/180.0; // w = rad/second
@@ -42,9 +42,9 @@ void main()
 
         float y = m * sin(water_frequency * (d - float(waterWaveTick)));
         posn.y = waterHeight + y;
-        */
+        
 
-        posn.y = waterHeight;
+        //posn.y = waterHeight;
         
     }// todo here do I need set limit
 
