@@ -64,8 +64,8 @@ int terain_model_id = 2; // Initial hight map id default MtCook.tga
 
 GLuint waterHeightLoc;
 GLuint snowHeightLoc;
-float water_level = 2.0; // Todo update later
-float snow_level = 5.0; // Todo update later
+float water_level = 2.0;
+float snow_level = 5.0;
 float update_level_speed = 0.01;
 
 //int water_wave_tick = 0;
@@ -150,8 +150,6 @@ void loadTexture()
 
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 
 	glActiveTexture(GL_TEXTURE2);
@@ -160,8 +158,6 @@ void loadTexture()
 
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 
 	glActiveTexture(GL_TEXTURE3);
@@ -170,9 +166,6 @@ void loadTexture()
 
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
 
 }
 
@@ -311,7 +304,7 @@ void display()
 	glm::mat4 view = lookAt(glm::vec3(eye_x, eye_y, eye_z), glm::vec3(look_x, look_y, look_z), glm::vec3(0.0, 1.0, 0.0)); //view matri
 	projView = proj * view;  //Product matrix
 
-	glm::vec4 light_pos = glm::vec4(-50.0, 10.0, 60.0, 1.0); // todo need to update West 
+	glm::vec4 light_pos = glm::vec4(-50.0, 10.0, 60.0, 1.0); // light position
 	
 
 	//----------light Uniform setter----------

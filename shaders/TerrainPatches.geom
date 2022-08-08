@@ -37,7 +37,7 @@ void lightingCalculation(vec4 position)
 
 void main()
 {
-	float xmin = -45, xmax = +45, zmin = 0, zmax = -90; // todo 
+	float xmin = -45, xmax = +45, zmin = 0, zmax = -90;
 
 	for (int i=0; i<gl_in.length(); i++)
 	{

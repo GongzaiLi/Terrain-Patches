@@ -34,8 +34,7 @@ vec4 snowTexture()
     vec4 diffuse_term;
 
     ambient_term = AMBIENT_LIGHT_COLOR * snow_color; // L * material
-    diffuse_term = snow_color * max(dot(lgtVector, eyeNormal), 0.0); // todo 0 or 0.1
-    // todo only water has specular color??
+    diffuse_term = snow_color * max(dot(lgtVector, eyeNormal), 0.0); // could be 0 or 0.1
 
     color = ambient_term + diffuse_term;
     
@@ -51,12 +50,12 @@ vec4 waterTexture()
     vec4 specular_term;
 
     float height = texture(heightMap, TexCoord).r;
-    float shininess = 20.0; // todo
+    float shininess = 20.0;
 
-    ambient_term = (1 - min(waterHeight - height * 10.0, 0.7)) * water_color; // todo
+    ambient_term = (1 - min(waterHeight - height * 10.0, 0.7)) * water_color;
 
-    specular_term = SPECULAR_LIGHT_COLOR * pow(max(dot(lgtVector, eyeNormal), 0.0), shininess);
-    diffuse_term = water_color * max(dot(lgtVector, eyeNormal), 0.0); // todo 0 or 0.1
+    specular_term = SPECULAR_LIGHT_COLOR * pow(max(dot(halfWayVector, eyeNormal), 0.0), shininess);
+    diffuse_term = water_color * max(dot(lgtVector, eyeNormal), 0.0); // could be 0 or 0.1
 
     color = ambient_term + diffuse_term + specular_term;
     
@@ -74,7 +73,7 @@ vec4 grassTexture()
 
     ambient_term = AMBIENT_LIGHT_COLOR * grass_color; // L * material
 
-    diffuse_term = grass_color * max(dot(lgtVector, eyeNormal), 0.0); // todo 0 or 0.1
+    diffuse_term = grass_color * max(dot(lgtVector, eyeNormal), 0.0); // could be 0 or 0.1
 
 
     color = ambient_term + diffuse_term;
@@ -95,7 +94,7 @@ vec4 grassWithSnowTexture()
 
     ambient_term = AMBIENT_LIGHT_COLOR * grass_with_snow_color; // L * material
 
-    diffuse_term = grass_with_snow_color * max(dot(lgtVector, eyeNormal), 0.0); // todo 0 or 0.1
+    diffuse_term = grass_with_snow_color * max(dot(lgtVector, eyeNormal), 0.0); // could be 0 or 0.1
 
     color = ambient_term + diffuse_term;
     
@@ -115,12 +114,12 @@ vec4 waterWithGrassTexture()
     vec4 specular_term;
 
     float height = texture(heightMap, TexCoord).r;
-    float shininess = 20.0; // todo
+    float shininess = 20.0;
 
-    ambient_term = (1 - min(waterHeight - height * 10.0, 0.7)) * water_with_grass_color; // todo
+    ambient_term = (1 - min(waterHeight - height * 10.0, 0.7)) * water_with_grass_color;
 
     specular_term = SPECULAR_LIGHT_COLOR * pow(max(dot(lgtVector, eyeNormal), 0.0), shininess);
-    diffuse_term = water_with_grass_color * max(dot(lgtVector, eyeNormal), 0.0); // todo 0 or 0.1
+    diffuse_term = water_with_grass_color * max(dot(lgtVector, eyeNormal), 0.0); // could be 0 or 0.1
 
     color = ambient_term + diffuse_term + specular_term;
     
@@ -136,7 +135,7 @@ float setRGB(float code)
 
 vec4 setFog(vec4 color)
 {
-    float low_fog = 50.0, high_fog = -150; // todo later
+    float low_fog = 50.0, high_fog = -150;
 
     //vec4 fog_color = vec4(setRGB(242.0), setRGB(248.0), setRGB(247.0), 1);
     vec4 fog_color = vec4(setRGB(220.0), setRGB(219.0), setRGB(223.0), 1);

@@ -9,10 +9,9 @@ uniform float waterHeight;
 //uniform int waterWaveTick;
 //uniform float waterWaveForward;
 
-// todo need updated
 void main()
 {
-    float xmin = -45, xmax = +45, zmin = 0, zmax = -90; // todo 
+    float xmin = -45, xmax = +45, zmin = 0, zmax = -90;
     vec4 posn;
     vec2 tcoord;
 
