@@ -11,7 +11,7 @@ uniform int waterWaveTick;
 out int flag;
 
 
-float getWaterWavaY(vec4 posn)
+float getWaterWaveY(vec4 posn)
 {
     float d = waterHeight - posn.y;
     float m = 0.2;  // height of the wave about the baseline
@@ -50,10 +50,10 @@ void main()
 
         flag = 1;  // pass value to show water texture
 
-        float water_wava_y = getWaterWavaY(posn);
+        float water_wave_y = getWaterWaveY(posn);
 
        
-        posn.y = waterHeight + water_wava_y;
+        posn.y = waterHeight + water_wave_y;
         
 
         //posn.y = waterHeight;
