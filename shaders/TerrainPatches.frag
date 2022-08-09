@@ -16,6 +16,7 @@ in vec4 lgtVector;
 in vec4 halfWayVector;
 in vec2 TexCoord;
 in vec3 currentPatchPoint;
+flat in int flag_out; 
 
 // #define WHITE vec4(1.0);
 
@@ -24,6 +25,7 @@ in vec3 currentPatchPoint;
 #define SPECULAR_LIGHT_COLOR vec4(0.4)  // 
 
 out vec4 outputColor;
+
 
 
 vec4 snowTexture()
@@ -170,18 +172,24 @@ void main()
      
 
      if (point_level > snowHeight) {
+
         color = snowTexture();
 
-     } else if (point_level > waterHeight) { // waterWithGrassLevel
-        
-        if (point_level >= snowHeight - grassWithSnowLevel) {
-            color = grassWithSnowTexture();
-        } else {
-            color = grassTexture();
-        }
+     } else if (flag_out == 1) { // waterWithGrassLevel
+
+        color = waterTexture();
 
      } else {
-        color = waterTexture();
+
+      if (point_level >= snowHeight - grassWithSnowLevel) {
+
+            color = grassWithSnowTexture();
+
+        } else {
+
+            color = grassTexture();
+
+        }
      }
 
      if (showFog) color = setFog(color);

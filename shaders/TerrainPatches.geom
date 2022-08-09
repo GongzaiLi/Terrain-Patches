@@ -16,6 +16,9 @@ out vec4 halfWayVector;
 out vec2 TexCoord;
 out vec3 currentPatchPoint;
 
+in int flag[];
+flat out int flag_out;
+
 void lightingCalculation(vec4 position)
 {
 	// light face normal
@@ -37,10 +40,12 @@ void lightingCalculation(vec4 position)
 
 void main()
 {
+	
 	float xmin = -45, xmax = +45, zmin = 0, zmax = -90;
 
 	for (int i=0; i<gl_in.length(); i++)
 	{
+		flag_out = flag[i];
 		vec4 position = gl_in[i].gl_Position;
 		lightingCalculation(position);
 

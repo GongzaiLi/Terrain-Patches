@@ -36,14 +36,11 @@ GLushort elems[81*4];     //Element array for 9x9 = 81 quad patches
 GLuint texID[TEXTURES_NUM]; // init textures number
 
 
-
-
 //----------start - file path----------
 string heightMapsPath = "./src/height_maps/";
 string texturesPath = "./src/textures/";
 string shadersPath = "./src/shaders/";
 
-string testPath = "./src/test/";
 //----------end - file path----------
 
 //----------start - any postion value----------
@@ -68,10 +65,11 @@ float water_level = 2.0;
 float snow_level = 5.0;
 float update_level_speed = 0.01;
 
-//int water_wave_tick = 0;
-//GLuint waterWaveTickLoc;
-//float water_wave_forward = 1;
-//GLuint waterWaveForwardLoc;
+int water_wave_tick = 0;
+GLuint waterWaveTickLoc;
+
+bool show_water_wave = true;
+GLuint showWaterWaveLoc;
 //----------end - textures and hight map----------
 
 //----------start - some suppot variable--------
@@ -133,7 +131,6 @@ void loadHeightMap() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
-
 
 //Loads height map
 void loadTexture()
@@ -209,7 +206,7 @@ void initialise()
 	GLuint shaderc = loadShader(GL_TESS_CONTROL_SHADER, shadersPath + "TerrainPatches.cont");
 	GLuint shadere = loadShader(GL_TESS_EVALUATION_SHADER, shadersPath + "TerrainPatches.eval");
 	GLuint shaderg = loadShader(GL_GEOMETRY_SHADER, shadersPath + "TerrainPatches.geom");
-	GLuint shaderf = loadShader(GL_FRAGMENT_SHADER, shadersPath + "TerrainPatches.frag"); // testPath    shadersPath
+	GLuint shaderf = loadShader(GL_FRAGMENT_SHADER, shadersPath + "TerrainPatches.frag"); //    shadersPath
 
 	GLuint program = glCreateProgram();
 	glAttachShader(program, shaderv);
@@ -242,8 +239,8 @@ void initialise()
 	showFogLoc = glGetUniformLocation(program, "showFog");
 	fogDensityLoc = glGetUniformLocation(program, "fogDensity");
 	removeCrackingLoc = glGetUniformLocation(program, "removeCracking");
-	//waterWaveTickLoc = glGetUniformLocation(program, "waterWaveTick");
-	//waterWaveForwardLoc = glGetUniformLocation(program, "waterWaveForward");
+	waterWaveTickLoc = glGetUniformLocation(program, "waterWaveTick");
+	showWaterWaveLoc = glGetUniformLocation(program, "showWaterWave");
 
 
 
@@ -304,7 +301,7 @@ void display()
 	glm::mat4 view = lookAt(glm::vec3(eye_x, eye_y, eye_z), glm::vec3(look_x, look_y, look_z), glm::vec3(0.0, 1.0, 0.0)); //view matri
 	projView = proj * view;  //Product matrix
 
-	glm::vec4 light_pos = glm::vec4(-50.0, 10.0, 60.0, 1.0); // light position
+	glm::vec4 light_pos = glm::vec4(-50.0, 50.0, 60.0, 1.0); // light position
 	
 
 	//----------light Uniform setter----------
@@ -334,8 +331,8 @@ void display()
 
 	glUniform1f(fogDensityLoc, fog_density);
 
-	//glUniform1i(waterWaveTickLoc, water_wave_tick);
-	//glUniform1f(waterWaveForwardLoc, water_wave_forward);
+	glUniform1i(waterWaveTickLoc, water_wave_tick);
+	glUniform1i(showWaterWaveLoc, show_water_wave);
 
 	//--------------Fog-----------------------------------
 	
@@ -393,9 +390,6 @@ void special(int key, int x, int y)
 	//cout << "angle" << angle << endl;
 	//cout << "look_x" << look_x << endl;
 	//cout << "look_z" << look_z << endl;
-
-	//glm::vec3 cameraPosn = glm::vec3(eye_x, eye_y, eye_z);
-	//glUniform3fv(eyeLoc, 1, &cameraPosn[0]); // glm::value_ptr
 
 	glutPostRedisplay();
 
@@ -495,6 +489,9 @@ void keyboardEvent(unsigned char key, int x, int y)
 	case 'c':
 		remove_cracking = !remove_cracking;
 		break;
+	case 'v':
+		show_water_wave = !show_water_wave;
+		break;
 	default:
 		break;
 	}
@@ -503,7 +500,7 @@ void keyboardEvent(unsigned char key, int x, int y)
 }
 
 
-void fogDensityChange(int value)
+void fogDensityChange()
 {
 	if (is_show_fog) {
 		if (more_fog) {
@@ -521,20 +518,23 @@ void fogDensityChange(int value)
 			more_fog = false;
 		}
 	}
-	glutTimerFunc(100, fogDensityChange, 0);
-	glutPostRedisplay();
 }
 
-/*
-void waterWaveChange(int value)
+
+void waterWaveChange()
 {
-	water_wave_tick++;
-	water_wave_forward = !water_wave_forward;
-
-	glutTimerFunc(50, waterWaveChange, 0);
-	glutPostRedisplay();
+	if (show_water_wave) water_wave_tick++;
 }
-*/
+
+void animate(int value)
+{
+	fogDensityChange();
+	waterWaveChange();
+	glutTimerFunc(100, animate, 0);
+	glutPostRedisplay();
+
+}
+
 
 
 int main(int argc, char** argv)
@@ -561,8 +561,7 @@ int main(int argc, char** argv)
 	glutDisplayFunc(display);
 	glutSpecialFunc(special);
 	glutKeyboardFunc(keyboardEvent);
-	glutTimerFunc(100, fogDensityChange, 0);
-	//glutTimerFunc(50, waterWaveChange, 0);
+	glutTimerFunc(100, animate, 0);
 	glutMainLoop();
 	return 0;
 }

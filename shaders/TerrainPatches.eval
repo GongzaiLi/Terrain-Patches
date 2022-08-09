@@ -6,8 +6,21 @@ layout(quads, equal_spacing, ccw) in;
 uniform sampler2D heightMap;
 uniform mat4 mvpMatrix;
 uniform float waterHeight;
-//uniform int waterWaveTick;
-//uniform float waterWaveForward;
+uniform int waterWaveTick;
+
+out int flag;
+
+
+float getWaterWavaY(vec4 posn)
+{
+    float d = waterHeight - posn.y;
+    float m = 0.2;  // height of the wave about the baseline
+    //float degree = 1; // defat 180 O
+    float water_frequency = 1.0; //degree * 3.14159265/180.0; // w = rad/second
+    float y = m * sin(water_frequency * (d - float(waterWaveTick)*0.1));
+
+    return y;
+}
 
 void main()
 {
@@ -30,21 +43,20 @@ void main()
     float height = texture(heightMap, tcoord).r;
 
     posn.y = height * 10.0;
-    
+
+    flag = 0;
+   
     if (posn.y <= waterHeight) {
+
+        flag = 1;  // pass value to show water texture
+
+        float water_wava_y = getWaterWavaY(posn);
+
+       
+        posn.y = waterHeight + water_wava_y;
         
-        /* try to do water wave
-        float m = 0.2;  // height of the wave about the baseline
-        float degree = 1; // defat 180
-        float water_frequency = degree * 3.14159265/180.0; // w = rad/second
 
-        float d = posn.x * waterWaveForward;
-
-        float y = m * sin(water_frequency * (d - float(waterWaveTick)));
-        posn.y = waterHeight + y;
-        */
-
-        posn.y = waterHeight;
+        //posn.y = waterHeight;
         
     }// todo here do I need set limit
 
