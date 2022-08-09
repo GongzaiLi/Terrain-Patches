@@ -408,7 +408,7 @@ void switchHightMap(int id)
 
 void upWaterLevel(float step)
 {
-	if (water_level >= snow_level-0.01) {
+	if (water_level >= snow_level - 0.3) {
 		return;
 	}
 	else {
@@ -439,7 +439,7 @@ void upSonwLevel(float step)
 
 void downSonwLevel(float step)
 {
-	if (snow_level <= water_level + 0.01) {
+	if (snow_level <= water_level + 0.3) {
 		return;
 	}
 	else {
