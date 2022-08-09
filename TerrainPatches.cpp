@@ -7,6 +7,7 @@
 //  This program requires the following files:
 //         TerrainPatches.vert, TerrainPatches.frag
 //         TerrainPatches.cont, TerrainPatches.eval
+//	   TerrainPatches.geom
 //  ========================================================================
 
 #include <iostream>
@@ -542,7 +543,7 @@ int main(int argc, char** argv)
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_DEPTH);
 	glutInitWindowSize(1000, 800);
-	glutCreateWindow("Terrain");
+	glutCreateWindow("Terrain-Gongzai Li");
 	glutInitContextVersion (4, 2);
 	glutInitContextProfile ( GLUT_CORE_PROFILE );
 
